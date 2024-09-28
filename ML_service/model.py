@@ -5,6 +5,8 @@ import joblib
 import pickle
 from sentence_transformers.util import cos_sim
 from dataclasses import dataclass
+from razdel import tokenize
+from pymystem3 import Mystem
 
 
 @dataclass
@@ -42,6 +44,10 @@ class PredictModel:
     faq_answers: dict
 
     def __init__(self, folder="models/"):
+        # Stemming init
+
+        self.m = Mystem()
+
         # Init high level models
 
         print("----- INIT START ------")
@@ -71,7 +77,13 @@ class PredictModel:
 
         print("Level 3 inited")
 
+    def __text_prep(self, text):
+        tokens = [j.text.lower() for j in tokenize(text)]
+        return "".join(self.m.lemmatize(' '.join(tokens))).strip()
+
     def inference(self, sentence):
+        sentence = self.__text_prep(sentence)
+
         tfidf_high_sent = self.tfidf_high.transform([sentence])
         pred_level1 = self.logreg_high.predict(tfidf_high_sent)[0]
 

@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 5221
 
-CMD ["python", "main.py"]
+CMD ["gunicorn", "-w", "10", "-b", "0.0.0.0:5221", "main:app"]
